@@ -1,0 +1,17 @@
+# Virtual Environment
+.venv/
+
+# Environment secrets
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temporary audio files
+*.mp3
+*.wav
+
+# IDE settings
+.vscode/
+.idea/
