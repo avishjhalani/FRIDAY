@@ -9,28 +9,33 @@ pygame.mixer.init()
 
 VOICE = "en-IE-EmilyNeural"
 
-async def speak(text:str):
-    """
-    Synthesizes text into speech and plays it through your speakers.
-    """
-    print(f"\n [FRIDAY]:{text}")
+import asyncio
+import io
+import edge_tts
+import pygame
 
-    temp_audio ="friday_voice.mp3"
+pygame.mixer.init()
+VOICE = "en-IE-EmilyNeural"
 
-
-    communicate = edge_tts.Communicate(text,VOICE)
-    await communicate.save(temp_audio)
-
-    pygame.mixer.music.load(temp_audio)
+async def speak(text: str):
+    temp_buffer = io.BytesIO()
+    
+    # 1. Stream audio chunks directly into RAM (Zero disk writes!)
+    communicate = edge_tts.Communicate(text, VOICE)
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            temp_buffer.write(chunk["data"])
+            
+    temp_buffer.seek(0)
+    
+    # 2. Print right when playback actually starts
+    print(f"\n[FRIDAY]: {text}")
+    
+    # 3. Play straight from RAM
+    pygame.mixer.music.load(temp_buffer)
     pygame.mixer.music.play()
-
     while pygame.mixer.music.get_busy():
-        pygame.time.Clock().tick(2)
-
-    pygame.mixer.music.unload()
-    if os.path.exists(temp_audio):
-        os.remove(temp_audio)
-
+        pygame.time.Clock().tick(10)
 
 if __name__ =="__main__":
     print("Testing the text to speech output of the system ...")
