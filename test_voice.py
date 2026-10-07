@@ -7,7 +7,7 @@ import pygame
 # initialize pygame mixer for playing the audio
 pygame.mixer.init()
 
-VOICE = "en-IE-EmilyNeural"
+VOICE = "en-US-AvaNeural"
 
 import asyncio
 import io
@@ -18,10 +18,13 @@ pygame.mixer.init()
 VOICE = "en-IE-EmilyNeural"
 
 async def speak(text: str):
+    if not text or not text.strip():
+        return
+        
     temp_buffer = io.BytesIO()
     
     # 1. Stream audio chunks directly into RAM (Zero disk writes!)
-    communicate = edge_tts.Communicate(text, VOICE)
+    communicate = edge_tts.Communicate(text, VOICE,rate="+35%",pitch="+2Hz")
     async for chunk in communicate.stream():
         if chunk["type"] == "audio":
             temp_buffer.write(chunk["data"])
